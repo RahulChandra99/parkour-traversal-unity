@@ -10,6 +10,8 @@ public class PlayerController : MonoBehaviour
 
     private Quaternion targetRotation;
     [SerializeField] private float playerRotationSpeed = 500f;
+
+    [SerializeField]private Animator _animator;
     private void Awake()
     {
         if (Camera.main != null) _cameraController = Camera.main.GetComponent<CameraController>();
@@ -21,7 +23,7 @@ public class PlayerController : MonoBehaviour
         float v= Input.GetAxisRaw("Vertical");
         Vector3 moveInput = new Vector3(h, 0, v).normalized;
 
-        float moveAmount = Mathf.Abs(h) + Mathf.Abs(v);
+        float moveAmount = Mathf.Clamp01(Mathf.Abs(h) + Mathf.Abs(v));
         
         var moveDir = _cameraController.PlanarRotation * moveInput;
 
@@ -36,5 +38,8 @@ public class PlayerController : MonoBehaviour
         //smoothly rotate player towards move direction
         transform.rotation =
             Quaternion.RotateTowards(transform.rotation, targetRotation, playerRotationSpeed * Time.deltaTime);
+        
+        //blend tree value
+        _animator.SetFloat("moveAmount",moveAmount, 0.2f, Time.deltaTime);
     }
 }
